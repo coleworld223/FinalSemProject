@@ -31,16 +31,20 @@ class EfficiencyInput(BaseModel):
     Recyclability_Waste_Generation: float
 
 
-app = FastAPI()
-
-
 @app.get("/")
 def read_root():
     return {"message": "Power Efficiency Predictor API is live!"}
 
 
+# @app.options("/predict/")
+# def temp():
+#     print("options called")
+#     return {"message": "good"}
+
+
 @app.post("/predict/")
 def predict_efficiency(input_data: EfficiencyInput):
+    print(input_data)
     features = np.array(
         [
             [

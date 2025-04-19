@@ -18,17 +18,24 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://127.0.0.1:8000/predict/", {
-        Cumulative_Energy_Demand: 1,
-        EROI: 2,
-        Net_Energy_Output: 3,
-        Raw_Material_Consumption: 4,
-        Recyclability_Waste_Generation: 6,
-      });
-      setResult(res.data.predicted_efficiency);
+      const res = await axios.post(
+        "http://127.0.0.1:8000/predict/",
+        {
+          Cumulative_Energy_Demand: 1,
+          EROI: 2,
+          Net_Energy_Output: 3,
+          Raw_Material_Consumption: 4,
+          Recyclability_Waste_Generation: 6,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      console.log(res);
+      setResult(res.data?.predicted_efficiency || "No data received");
     } catch (err) {
-      console.error("Error:", err);
-      alert("Failed to fetch prediction.");
+      console.error("Error:", err.response?.data || err.message);
+      alert(`Failed: ${err.response?.data?.detail || err.message}`);
     }
   };
 
