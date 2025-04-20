@@ -1,21 +1,35 @@
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 import joblib
+import csv
 
-# Simulate sample training data (replace with your real data later)
-data = pd.DataFrame(
-    {
-        "Cumulative Energy Demand (CED)": [100, 200, 150, 300, 250],
-        "Energy Return on Investment (EROI)": [10, 15, 12, 20, 18],
-        "Net Energy Output": [50, 70, 65, 90, 85],
-        "Raw Material Consumption": [30, 40, 35, 45, 42],
-        "Recyclability & Waste Generation": [0.7, 0.8, 0.75, 0.85, 0.82],
-        "Overall Efficiency (%)": [70, 85, 78, 90, 88],
-    }
-)
+# Set random seed for reproducibility
+np.random.seed(42)
 
-X = data.drop("Overall Efficiency (%)", axis=1)
-y = data["Overall Efficiency (%)"]
+# Generate 1000 random samples
+num_samples = 1000
+
+data = {
+    "Cumulative Energy Demand (CED)": np.random.uniform(80, 350, num_samples).round(2),
+    "Energy Return on Investment (EROI)": np.random.uniform(5, 25, num_samples).round(2),
+    "Net Energy Output": np.random.uniform(40, 120, num_samples).round(2),
+    "Raw Material Consumption": np.random.uniform(20, 60, num_samples).round(2),
+    "Recyclability & Waste Generation": np.random.uniform(0.5, 0.95, num_samples).round(3),
+    "Overall Efficiency (%)": np.random.uniform(65, 95, num_samples).round(2),
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Save to CSV
+df.to_csv('solar_lca_dataset.csv', index=False)
+
+print("Dataset generated and saved as 'solar_lca_dataset.csv'")
+print(df.head())  # Preview first 5 rows
+
+X = df.drop("Overall Efficiency (%)", axis=1)
+y = df["Overall Efficiency (%)"]
 
 model = RandomForestRegressor()
 model.fit(X, y)

@@ -20,13 +20,7 @@ function App() {
     try {
       const res = await axios.post(
         "http://127.0.0.1:8000/predict/",
-        {
-          Cumulative_Energy_Demand: 1,
-          EROI: 2,
-          Net_Energy_Output: 3,
-          Raw_Material_Consumption: 4,
-          Recyclability_Waste_Generation: 6,
-        },
+        formData,
         {
           headers: { "Content-Type": "application/json" },
         }
