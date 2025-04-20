@@ -1,7 +1,22 @@
 import { useState } from "react";
 import axios from "axios";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TextField, Button, Grid, Card, Typography, Box, IconButton } from "@mui/material";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  TextField,
+  Button,
+  Grid,
+  Card,
+  Typography,
+  Box,
+  IconButton,
+} from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 function App() {
@@ -19,7 +34,14 @@ function App() {
     setFormData({ ...formData, [e.target.name]: parseFloat(e.target.value) });
   };
 
-  const COLORS = ["#facc15", "#ef4444", "#fb923c", "#a855f7", "#3b82f6", "#ec4899"];
+  const COLORS = [
+    "#facc15",
+    "#ef4444",
+    "#fb923c",
+    "#a855f7",
+    "#3b82f6",
+    "#ec4899",
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +72,14 @@ function App() {
   ];
 
   return (
-    <div style={{ background: "linear-gradient(to right, #a7f3d0, #60a5fa)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        background: "linear-gradient(to right, #a7f3d0, #60a5fa)",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Box textAlign="center" py={4} bgcolor="white" boxShadow={3} flexGrow={1}>
         <Typography variant="h4" color="primary">
           Renewable Energy Lifecycle Assessment
@@ -61,18 +90,18 @@ function App() {
       </Box>
 
       {result !== null && (
-          <Box textAlign="center" mt={4}>
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<RefreshIcon />}
-              onClick={() => setResult(null)}
-              sx={{ borderRadius: 4, px: 4, py: 1.5, fontWeight: 500 }}
-            >
-              Refresh Prediction
-            </Button>
-          </Box>
-        )}
+        <Box textAlign="center" mt={4}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<RefreshIcon />}
+            onClick={() => setResult(null)}
+            sx={{ borderRadius: 4, px: 4, py: 1.5, fontWeight: 500 }}
+          >
+            Refresh Prediction
+          </Button>
+        </Box>
+      )}
 
       {result !== null && (
         <Box mt={6} mx="auto" maxWidth={600}>
@@ -91,44 +120,57 @@ function App() {
                 label
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
-              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+              />
             </PieChart>
           </ResponsiveContainer>
         </Box>
       )}
 
       <Box flexGrow={1}>
-      {result === null ? (
-        <Box mx="auto" mt={6} p={4} maxWidth={1500} component="form" onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            {Object.keys(formData).map((key) => (
-              <Grid item xs={12} sm={6} md={4} key={key}>
-                <Card elevation={3} sx={{ p: 2 }}>
-                  <Typography variant="body1" gutterBottom>
-                    {key.replace(/_/g, " ")}
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    name={key}
-                    value={formData[key]}
-                    onChange={handleChange}
-                    variant="outlined"
-                    type="number"
-                    step="any"
-                    required
-                    size="small"
-                  />
-                </Card>
-              </Grid>
-            ))}
+        {result === null ? (
+          <Box
+            mx="auto"
+            mt={6}
+            p={4}
+            maxWidth={1500}
+            component="form"
+            onSubmit={handleSubmit}
+          >
+            <Grid container spacing={3}>
+              {Object.keys(formData).map((key) => (
+                <Grid item xs={12} sm={6} md={4} key={key}>
+                  <Card elevation={3} sx={{ p: 2 }}>
+                    <Typography variant="body1" gutterBottom>
+                      {key.replace(/_/g, " ")}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      name={key}
+                      value={formData[key]}
+                      onChange={handleChange}
+                      variant="outlined"
+                      type="number"
+                      step="any"
+                      required
+                      size="small"
+                    />
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
-            
-            
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 15}}>
+
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 15 }}>
               <Button
                 type="submit"
                 variant="contained"
@@ -138,19 +180,17 @@ function App() {
               >
                 Predict
               </Button>
-              </Box>
-            
-          
-        </Box>
-      ) : (
-        <Box textAlign="center" mt={6}>
-          <Card elevation={3} sx={{ p: 4 }}>
-            <Typography variant="h5" color="primary" gutterBottom>
-              Predicted Efficiency: {result}%
-            </Typography>
-          </Card>
-        </Box>
-      )}
+            </Box>
+          </Box>
+        ) : (
+          <Box textAlign="center" mt={6}>
+            <Card elevation={3} sx={{ p: 4 }}>
+              <Typography variant="h5" color="primary" gutterBottom>
+                Predicted Efficiency: {result}%
+              </Typography>
+            </Card>
+          </Box>
+        )}
       </Box>
 
       <Box py={2} textAlign="center" bgcolor="white" boxShadow={3}>
