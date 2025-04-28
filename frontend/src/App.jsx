@@ -15,23 +15,36 @@ import {
   Card,
   Typography,
   Box,
-  IconButton,
+  MenuItem,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 function App() {
   const [formData, setFormData] = useState({
-    Cumulative_Energy_Demand: 0,
-    EROI: 0,
-    Net_Energy_Output: 0,
-    Raw_Material_Consumption: 0,
-    Recyclability_Waste_Generation: 0,
+    Material_Type: 0, // Unit: Material type (no unit)
+    Energy_Manufacturing: 0, // Unit: kWh
+    Plant_Size: 0, // Unit: MW
+    Capacity_Factor: 0, // Unit: Percentage (%)
+    Lifespan: 0, // Unit: Years
   });
 
+  const [selectedModel, setSelectedModel] = useState("carbon_manufacturing");
   const [result, setResult] = useState(null);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: parseFloat(e.target.value) });
+  const modelEndpoints = {
+    carbon_manufacturing: "predict/carbon_manufacturing/",
+    total_lifetime_emissions: "predict/total_lifetime_emissions/",
+    transportation_emissions: "predict/transportation_emissions/",
+    recycling_benefits: "predict/recycling_benefits/",
+    operational_emissions: "predict/operational_emissions/",
+  };
+
+  const modelNames = {
+    carbon_manufacturing: "Carbon Manufacturing Emissions",
+    total_lifetime_emissions: "Total Lifetime Emissions",
+    transportation_emissions: "Transportation Emissions",
+    recycling_benefits: "Recycling Benefits",
+    operational_emissions: "Operational Emissions",
   };
 
   const COLORS = [
@@ -43,13 +56,25 @@ function App() {
     "#ec4899",
   ];
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: parseFloat(e.target.value) });
+  };
+
+  const handleModelChange = (e) => {
+    setSelectedModel(e.target.value);
+    setResult(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://127.0.0.1:8000/predict/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      setResult(res.data?.predicted_efficiency || "No data received");
+      const res = await axios.post(
+        `http://127.0.0.1:8000/${modelEndpoints[selectedModel]}`,
+        formData,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const predictionKey = Object.keys(res.data)[0];
+      setResult(res.data[predictionKey]);
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
       alert(`Failed: ${err.response?.data?.detail || err.message}`);
@@ -62,14 +87,26 @@ function App() {
       value,
     })),
     ...(result !== null
-      ? [
-          {
-            name: "Predicted Efficiency",
-            value: parseFloat(result),
-          },
-        ]
+      ? [{ name: modelNames[selectedModel], value: parseFloat(result) }]
       : []),
   ];
+
+  const getOutputUnit = (model) => {
+    switch (model) {
+      case "carbon_manufacturing":
+        return "kg CO2/kWh"; // Example: kg of CO2 per kWh of energy produced
+      case "total_lifetime_emissions":
+        return "tons CO2"; // Example: total emissions over the lifetime
+      case "transportation_emissions":
+        return "kg CO2"; // Example: emissions from transportation
+      case "recycling_benefits":
+        return "kg CO2"; // Example: carbon saved by recycling
+      case "operational_emissions":
+        return "kg CO2/kWh"; // Example: emissions per kWh of energy produced
+      default:
+        return "";
+    }
+  };
 
   return (
     <div
@@ -85,8 +122,30 @@ function App() {
           Renewable Energy Lifecycle Assessment
         </Typography>
         <Typography variant="body1" color="textSecondary" mt={1}>
-          Predicting Power Substation Efficiency
+          Predict Environmental Impacts
         </Typography>
+      </Box>
+
+      <Box mx="auto" mt={4} p={3} maxWidth={600}>
+        <Card elevation={4} sx={{ p: 3 }}>
+          <Typography variant="h6" mb={2}>
+            Select Output to Predict
+          </Typography>
+          <TextField
+            select
+            fullWidth
+            value={selectedModel}
+            onChange={handleModelChange}
+            variant="outlined"
+            size="small"
+          >
+            {Object.entries(modelNames).map(([key, label]) => (
+              <MenuItem key={key} value={key}>
+                {label}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Card>
       </Box>
 
       {result !== null && (
@@ -106,7 +165,7 @@ function App() {
       {result !== null && (
         <Box mt={6} mx="auto" maxWidth={600}>
           <Typography variant="h6" textAlign="center" mb={3}>
-            Efficiency Breakdown (Pie Chart)
+            Result Breakdown (Pie Chart)
           </Typography>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -164,6 +223,21 @@ function App() {
                       step="any"
                       required
                       size="small"
+                      InputProps={{
+                        endAdornment: (
+                          <Typography variant="body2">
+                            {key === "Energy_Manufacturing"
+                              ? "kWh"
+                              : key === "Capacity_Factor"
+                              ? "%"
+                              : key === "Plant_Size"
+                              ? "MW"
+                              : key === "Lifespan"
+                              ? "Years"
+                              : ""}
+                          </Typography>
+                        ),
+                      }}
                     />
                   </Card>
                 </Grid>
@@ -186,7 +260,8 @@ function App() {
           <Box textAlign="center" mt={6}>
             <Card elevation={3} sx={{ p: 4 }}>
               <Typography variant="h5" color="primary" gutterBottom>
-                Predicted Efficiency: {result}%
+                Predicted {modelNames[selectedModel]}: {result.toFixed(2)}{" "}
+                {getOutputUnit(selectedModel)}
               </Typography>
             </Card>
           </Box>
